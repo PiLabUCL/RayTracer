@@ -369,7 +369,7 @@ void lsc10(double runs,int lscs, int start, int end, bool debug, bool matlabprin
     Point3D D (1,1,1);
     Point3D E (11,1,1);
     Point3D F (1,11,1);
-    double h2 = 0.4;
+    double h2 = 0.35;
     
     Point3D J (1,1,2);
     Point3D K (11,1,2);
@@ -2241,7 +2241,7 @@ int main(int argc, const char * argv[]){
     
     //double runs, int start, int end, bool matlabprint, bool debug, bool fulldebug, bool wavelengthprint
     
-    lsc10(200000,1,440,507,0,0,1); //Simulation #1: Flat LSC
+    lsc10(200000,1,440,506,0,0,1); //Simulation #1: Flat LSC
     
     //flexirun(2000, 350, 520, 0, 0, 0, 1); //Simulation #2: Flexible (Old algorithm)
     

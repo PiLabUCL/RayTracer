@@ -125,7 +125,7 @@ Process::GetPathLength(double &wavelength, double &concentration){
     return INFINITY;
 }
 
-double //gets path lengths
+double //gets path lengths∂
 //ExtinctionRate is actually 'Molar attenuation coefficient' in units of M^-1 * cm^-1
 Process::GetScatterPathLength(double &wavelength, double &concentration){
     double beta = concentration*GetScatterRate(wavelength);
@@ -145,7 +145,7 @@ Process::GetEmissionWavelength(){
 bool //checks if reemitted
 Process::QuantumYieldCheck(double &Wavelength){
     //   int i = data.findNearestNeighbourIndex(Wavelength, Wavelengthvalues);
-    if(calc.Random(1)<=0.93) return 1;
+    if(calc.Random(1)<=0.88) return 1;
     //if(calc.Random(1)<=QuantumYieldValues[i]) return 1; //ADD FILE WITH ALL QY VALUES
     else return 0;
     
