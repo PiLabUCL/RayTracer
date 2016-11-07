@@ -22,16 +22,16 @@ Process::ReadData(bool evenspaced, bool hybrid, double radius, bool hot){
             
         }
         else{
-            Wavelengthvalues = data.read("data/lsc12/wavelengths.txt");
+            Wavelengthvalues = data.read("data/lsc12_2/wavelengths.txt");
             QuantumYieldValues = data.read("data/emission_quantumyield.txt");
-            vector<double> yvalues = data.read("data/lsc12/emission.txt");
+            vector<double> yvalues = data.read("data/lsc12_2/emission.txt");
             ProbabilityValues = data.auconvert(yvalues);
             
-            Wavelengths = data.read("data/lsc12/wavelengths.txt");
-            ExtinctionRateValues = data.read("data/lsc12/absorption.txt");
+            Wavelengths = data.read("data/lsc12_2/wavelengths.txt");
+            ExtinctionRateValues = data.read("data/lsc12_2/absorption.txt");
             
-            lambda_Scatter = data.read("data/lsc12/wavelengths.txt");
-            ScatterRateValues = data.read("data/lsc12/absorption.txt");
+            lambda_Scatter = data.read("data/lsc12_2/wavelengths.txt");
+            ScatterRateValues = data.read("data/lsc12_2/absorption.txt");
             
         }
     }else{
