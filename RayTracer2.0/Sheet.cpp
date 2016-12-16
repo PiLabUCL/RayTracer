@@ -196,3 +196,23 @@ Point3D //Returns centre point of a sheet
 Sheet::Centre(){
     return A + ((B-A)/2) + ((C-A)/2);
 }
+
+Point3D
+Sheet::PointinCircle(double &radius){
+    double x0 = Centre().x;
+    double y0 = Centre().y;
+    double z0 = Centre().z;
+    double t = 2*M_PI*calc.Random(1);
+    double u = calc.Random(1)*calc.Random(1);
+    double r;
+    if(u>1){
+        r = 2-u;
+    }
+    else{
+        r = u;
+    }
+    
+    r = r*radius;
+    
+    return Point3D(x0+r*cos(t),y0+r*sin(t),z0);
+}

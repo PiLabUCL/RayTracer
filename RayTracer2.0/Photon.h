@@ -47,6 +47,7 @@ public:
     bool& GetInside();
     int& GetAbsorptions();
     void SetExit();
+    void UnsetExit();
     bool& GetExit();
     void SetQYLoss();
     bool& GetQYLoss();

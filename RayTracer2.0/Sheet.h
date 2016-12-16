@@ -5,11 +5,13 @@
 #include <iomanip>
 #include "Point3D.h"
 #include "Photon.h"
+#include "Functions.h"
 
 class Sheet{
     Point3D A,B,C;
     Vector3D normal;
     bool obtainednormal;
+    Functions calc;
     
 public:
     Sheet();
@@ -42,6 +44,7 @@ public:
     double TriangleArea(Point3D A, Point3D B, Point3D C);
     bool SignCompare(double A, double B, double C);
     Point3D Centre();
+    Point3D PointinCircle(double& radius);
 };
 
 #endif

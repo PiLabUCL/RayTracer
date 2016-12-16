@@ -22,16 +22,16 @@ Process::ReadData(bool evenspaced, bool hybrid, double radius, bool hot){
             
         }
         else{
-            Wavelengthvalues = data.read("data/lsc12_2/wavelengths.txt");
+            Wavelengthvalues = data.read("data/lsc18/wavelengths.txt");
             QuantumYieldValues = data.read("data/emission_quantumyield.txt");
-            vector<double> yvalues = data.read("data/lsc12_2/emission.txt");
+            vector<double> yvalues = data.read("data/lsc18/emission.txt");
             ProbabilityValues = data.auconvert(yvalues);
             
-            Wavelengths = data.read("data/lsc12_2/wavelengths.txt");
-            ExtinctionRateValues = data.read("data/lsc12_2/absorption.txt");
+            Wavelengths = data.read("data/lsc18/wavelengths.txt");
+            ExtinctionRateValues = data.read("data/lsc10_2/absorption.txt");
             
-            lambda_Scatter = data.read("data/lsc12_2/wavelengths.txt");
-            ScatterRateValues = data.read("data/lsc12_2/absorption.txt");
+            lambda_Scatter = data.read("data/lsc18/wavelengths.txt");
+            ScatterRateValues = data.read("data/lsc10_2/absorption.txt");
             
         }
     }else{
@@ -119,7 +119,7 @@ Process::GetPathLength(double &wavelength, double &concentration){
     double beta = concentration*GetExtinctionRate(wavelength);
     //cout<<beta<<endl;
     if(beta!=0){
-        double pathlength = -(log(calc.Random(1))/beta);
+        double pathlength = -(log10(calc.Random(1))/beta);
         if(pathlength>1e-9) return pathlength;
     }
     return INFINITY;
@@ -131,7 +131,7 @@ Process::GetScatterPathLength(double &wavelength, double &concentration){
     double beta = concentration*GetScatterRate(wavelength);
     //cout<<beta<<endl;
     if(beta!=0){
-        double pathlength = -(log(calc.Random(1))/beta);
+        double pathlength = -(log10(calc.Random(1))/beta);
         if(pathlength>1e-9) return pathlength;
     }
     return INFINITY;
@@ -145,7 +145,7 @@ Process::GetEmissionWavelength(){
 bool //checks if reemitted
 Process::QuantumYieldCheck(double &Wavelength){
     //   int i = data.findNearestNeighbourIndex(Wavelength, Wavelengthvalues);
-    if(calc.Random(1)<=0.88) return 1;
+    if(calc.Random(1)<=0.93) return 1;
     //if(calc.Random(1)<=QuantumYieldValues[i]) return 1; //ADD FILE WITH ALL QY VALUES
     else return 0;
     

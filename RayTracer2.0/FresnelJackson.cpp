@@ -406,7 +406,7 @@ FresnelJackson::NewCurvedIn(Photon *photon, Material *world, curvedlsc& FLSC, bo
     photon->SetPosition(photon->GetPosition()+photon->GetMomentum()*FLSC.NextDistance(*photon, debug));
     photon->SetMomentum(NewMomentum);
     photon->SetPolarisation(NewPolarisation);
-    
+        
     if(Transmitted){
         FLSC.SetPhotonInside(1);
         FLSC.SetInitialAbsorbLength(photon);

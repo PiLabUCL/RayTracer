@@ -176,6 +176,11 @@ Photon::SetExit(){
     Exit = 1;
 }
 
+void
+Photon::UnsetExit(){
+    Exit = 0;
+}
+
 bool& //Return Exit bool
 Photon::GetExit(){
     return Exit;
