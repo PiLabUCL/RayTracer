@@ -402,7 +402,7 @@ void run_reflection(double runs,int lscs, int start, int end, bool debug, bool m
     pdms.Data("pdms.txt");
     
     lsc->SetRefractiveIndex(1.44);
-    lsc->SetConcentration(1e-4);
+    lsc->SetConcentration(1e-5);
     
     lsc2->SetRefractiveIndex(1.495);
     lsc2->SetConcentration(1e-5);
@@ -754,7 +754,7 @@ void lsc10(double runs,int lscs, int start, int end, bool debug, bool matlabprin
     pdms.Data("pdms.txt");
     
     lsc->SetRefractiveIndex(1.44);
-    lsc->SetConcentration(1e-4);
+    lsc->SetConcentration(1e-5);
     
     lsc2->SetRefractiveIndex(1.495);
     lsc2->SetConcentration(1e-5);
@@ -1224,15 +1224,26 @@ void lsc18(double runs,int lscs, int start, int end, bool debug, bool matlabprin
                 else{ //If boundary is next event.
                     
                     if(!(objects->CurrentMaterial()->GetInterfaceSheet(photon) == objects->CurrentMaterial()->GetBase()) & !(objects->CurrentMaterial()->GetInterfaceSheet(photon) == objects->CurrentMaterial()->GetTop())){
-                        outwavelength.push_back(photon->GetWavelength());
-                        photon->PhotonKill(); //If sheet is not top or bottom. Kill photon + add counters.
-                        hits++;
-                        thishits++;
                         
-                        if(debug){
-                            cout<<"Hit at interface point: ";
-                            print->PrintPoint(objects->CurrentMaterial()->GetInterfacePoint(photon));
-                            cout<<endl;
+                        double n_new = pdms.Lookup(photon->GetWavelength());
+                        objects->CurrentMaterial()->SetRefractiveIndex(n_new);
+                        
+                        if(inout->Out(photon, objects->NextInterfaceMaterial(photon), objects->CurrentMaterial(), debug, objects, 0)){
+                            outwavelength.push_back(photon->GetWavelength());
+                            photon->UnsetExit();
+                            photon->PhotonKill(); //If sheet is not top or bottom. Kill photon + add counters.
+                            hits++;
+                            thishits++;
+                            
+                            if(debug){
+                                cout<<"Hit at interface point: ";
+                                print->PrintPoint(objects->CurrentMaterial()->GetInterfacePoint(photon));
+                                cout<<endl;
+                            }
+                            
+                        }//If transmitted, kill photon and record data.
+                        else{
+                            if(matlabprint && world->PointinBox(photon)) photonpath.push_back(photon->GetPosition());
                         }
                     }
                     else{
@@ -2937,9 +2948,9 @@ int main(int argc, const char * argv[]){
     
     //double runs, int start, int end, bool matlabprint, bool debug, bool fulldebug, bool wavelengthprint
     
-    //lsc10(200000,1,440,500,0,0,1); //Simulation #1: Flat LSC
+    //lsc18(200000,1,440,500,0,0,1); //Simulation #1: Flat LSC
     
-    run_reflection(200000,1,440,500,0,0,1);
+    run_reflection(200000,1,440,510,0,0,1);
     
     //flexirun(2000, 350, 520, 0, 0, 0, 1); //Simulation #2: Flexible (Old algorithm)
     

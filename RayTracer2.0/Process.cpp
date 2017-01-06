@@ -24,14 +24,14 @@ Process::ReadData(bool evenspaced, bool hybrid, double radius, bool hot){
         else{
             Wavelengthvalues = data.read("data/lsc18/wavelengths.txt");
             QuantumYieldValues = data.read("data/emission_quantumyield.txt");
-            vector<double> yvalues = data.read("data/lsc18/emission.txt");
+            vector<double> yvalues = data.read("data/lsc14/emission.txt");
             ProbabilityValues = data.auconvert(yvalues);
             
-            Wavelengths = data.read("data/lsc18/wavelengths.txt");
-            ExtinctionRateValues = data.read("data/lsc10_2/absorption.txt");
+            Wavelengths = data.read("data/lsc14_4/wavelengths.txt");
+            ExtinctionRateValues = data.read("data/lsc14_4/absorption.txt");
             
-            lambda_Scatter = data.read("data/lsc18/wavelengths.txt");
-            ScatterRateValues = data.read("data/lsc10_2/absorption.txt");
+            lambda_Scatter = data.read("data/lsc14_4/wavelengths.txt");
+            ScatterRateValues = data.read("data/lsc14_4/absorption.txt");
             
         }
     }else{
