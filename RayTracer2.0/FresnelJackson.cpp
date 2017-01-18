@@ -390,7 +390,7 @@ FresnelJackson::NewCurvedIn(Photon *photon, Material *world, curvedlsc& FLSC, bo
     
     int surface = FLSC.NextIntersection(*photon, debug);
     Vector3D N;
-    if(surface!=2 && surface!=0){
+    if(surface!=3 && surface!=0 && surface){
         N = FLSC.NextNormal(*photon, debug);
         N.Normalise();
         
@@ -426,11 +426,11 @@ FresnelJackson::NewCurvedIn(Photon *photon, Material *world, curvedlsc& FLSC, bo
     }
 }
 
-void
+bool
 FresnelJackson::NewCurvedOut(Photon *photon, curvedlsc& FLSC, Material *world, bool &debug, double& reflections){
     int surface = FLSC.NextIntersection(*photon, debug);
     Vector3D N;
-    if(surface!=3 && surface!=0){
+    if(surface == 1){
         N = -FLSC.NextNormal(*photon, debug);
         N.Normalise();
         
@@ -460,11 +460,12 @@ FresnelJackson::NewCurvedOut(Photon *photon, curvedlsc& FLSC, Material *world, b
     
     else{
         FLSC.SetPhotonInside(0);
+        photon->SetExit();
         photon->SetAbsorblength(DBL_MAX);
         if(debug){
             cout<<"Exit boundary event. Refraction:"<<endl;
             print.PhotonPrint(photon);
         }
     }
-    
+    return Transmitted;
 }

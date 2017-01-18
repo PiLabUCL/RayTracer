@@ -182,6 +182,11 @@ curvedlsc::GetRefractiveIndex(){
     return refractiveindex;
 }
 
+void
+curvedlsc::SetRefractiveIndex(double n){
+    refractiveindex = n;
+}
+
 
 /*//Indicator that Material has a photon inside
 void

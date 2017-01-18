@@ -45,6 +45,7 @@ public:
     bool SignCompare(double A, double B, double C);
     Point3D Centre();
     Point3D PointinCircle(double& radius);
+    Point3D PointinCircleX(double& radius);
 };
 
 #endif
