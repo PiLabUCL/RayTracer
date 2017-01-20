@@ -2073,7 +2073,7 @@ void flexirun_new(double runs, int start, int end, bool matlabprint, bool debug,
     //Generate Gaussian Shape for source beam
     
     double sourcedistance = 25 + (50/11);
-
+    
     
     
     //Point3D SourceA(30,0,5);
@@ -2140,9 +2140,10 @@ void flexirun_new(double runs, int start, int end, bool matlabprint, bool debug,
     double morethanfive = 0;
     double reflected = 0;
     double notabsorbedinside = 0;
-    double reabsorbed = 0;
     double insideabsorbedexit = 0;
     double firstabsorbed = 0;
+    double reabsorbed = 0;
+    
     
     
     
@@ -2185,7 +2186,7 @@ void flexirun_new(double runs, int start, int end, bool matlabprint, bool debug,
                 initialmom.Normalise();
                 //cout<<"x = "<<y<<" and y = "<<y<<endl;
                 nums++;
-
+                
             }
         }
         
@@ -2221,6 +2222,8 @@ void flexirun_new(double runs, int start, int end, bool matlabprint, bool debug,
                 }
                 
                 else{
+                    double n_new = pdms.Lookup(photon->GetWavelength());
+                    LSC->SetRefractiveIndex(n_new);
                     inout->NewCurvedIn(photon, world, *LSC, debug); //Else, entrance reflect/refract event.
                     if(matlabprint && LSC->ReturnPhotonInside()) photonpath.push_back(photon->GetPosition());
                 }
@@ -2722,16 +2725,13 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
     
     MATLABPrint* matlab = new MATLABPrint;
     
-    spectra am;
-    am.Setup(start, end, "spectrum.txt");
-    
     vector<vector<Point3D>> paths;
     
     //World dimensions and settings
-    Point3D A (-500,-500,-500);
-    Point3D B (500,-500,-500);
-    Point3D C (-500,500,-500);
-    double h = 1000;
+    Point3D A (-5000,-5000,-5000);
+    Point3D B (5000,-5000,-5000);
+    Point3D C (-5000,5000,-5000);
+    double h = 10000;
     
     Sheet* worldbase = new Sheet;
     worldbase->Set(A,B,C);
@@ -2751,16 +2751,16 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
     vector<vector<double>> concentrationsweep;
     
     
-    double thstart = -1;
-    double thend = 1.4;
-    double thsteps = 40;
+    double thstart = log10(0.4);
+    double thend = log10(0.8);
+    double thsteps = 1;
     double stepsize = (thend-thstart)/thsteps;
     
     for(double thickness_run = thstart; thickness_run <= thend; thickness_run = thickness_run + stepsize){
         
         double r = rads; //radius of curvature
-        double l = 100; //length of lsc
-        double height = 100; //height of lsc
+        double l = 10; //length of lsc
+        double height = 10; //height of lsc
         double width = pow(10,thickness_run); //width of lsc/thickness
         
         Point3D centrepoint(-(r),0,0);
@@ -2782,7 +2782,7 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
         arc.SetStart(st);
         arc.SetEnd(en);
         
-        double n = 1.495;
+        double n = 1.44;
         
         
         curvedlsc* LSC = new curvedlsc;
@@ -2793,24 +2793,24 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
         LSC->ReadData(1,0,rz,hot);
         LSC->Set(centrepoint, r, l, width, height, n);
         
+        matrixread pdms;
+        pdms.Data("pdms.txt");
+        spectra am;
+        am.Setup(start, end, "beam.txt");
+        
+        
         double squareradius = 50;
+        double ROUNDRAD = 1.3;
         
+        //Generate Gaussian Shape for source beam
         
-        //FLAT
-        Point3D SourceA (300,0-squareradius,(height/2)-squareradius);
-        Point3D SourceB (300,0+squareradius,(height/2)-squareradius);
-        Point3D SourceC (300,0-squareradius,(height/2)+squareradius);
+        double sourcedistance = 25 + (50/11);
         
-        
-        /*
-         //BENT
-         Point3D SourceA (300,0-(200/M_PI),(height/2)-squareradius);
-         Point3D SourceB (300,0+(200/M_PI),(height/2)-squareradius);
-         Point3D SourceC (300,0-(200/M_PI),(height/2)+squareradius);
-         */
+        Point3D SourceA (sourcedistance,0-squareradius,5-squareradius);
+        Point3D SourceB (sourcedistance,0+squareradius,5-squareradius);
+        Point3D SourceC (sourcedistance,0-squareradius,5+squareradius);
         
         Sheet* source = new Sheet;
-        
         source->Set(SourceA,SourceB,SourceC);
         
         
@@ -2823,8 +2823,8 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
         vector<double> thickness_conc;
         
         double concstart = -6;
-        double concend = 0;
-        double concsteps = 40;
+        double concend = -4;
+        double concsteps = 2;
         double concstepsize = (concend-concstart)/concsteps;
         
         
@@ -2848,10 +2848,13 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
             
             LSC->SetConcentration(conc);
             
-            
-            
             double thisphotons = 0;
             double thishits = 0;
+            double thisabsorbed = 0;
+            
+            double firstabsorbed = 0;
+            double reabsorbed = 0;
+            
             
             //Loop for individual wavelength.
             
@@ -2873,8 +2876,34 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
                 
                 double wavelength = am.GenerateWavelength();
                 
-                photon->SetPosition(Point3D(300,sy,sz));
-                photon->SetMomentum(Vector3D(-1,0,0));
+                //GAUSSIAN BEAM GENERATOR
+                
+                default_random_engine generator;
+                normal_distribution<double> distribution(0.5,2.0);
+                
+                Vector3D initialmom;
+                Point3D initialpos = source->Centre();
+                int nums = 0;
+                while(nums<1){
+                    double number = distribution(generator);
+                    if((number>=-1)&&(number<1)){
+                        //cout<<"Normal number ="<<number<<endl;
+                        double radius = number;
+                        double angle = drand48()*M_PI*2;
+                        double dy = cos(angle)*radius*ROUNDRAD;
+                        double dz = sin(angle)*radius*ROUNDRAD;
+                        
+                        initialmom = Vector3D(-sourcedistance,dy,dz);
+                        initialmom.Normalise();
+                        //cout<<"x = "<<y<<" and y = "<<y<<endl;
+                        nums++;
+                        
+                    }
+                }
+                
+                
+                photon->SetPosition(initialpos);
+                photon->SetMomentum(initialmom);
                 photon->SetWavelength(wavelength);
                 photon->SetRandomPolarisation();
                 
@@ -2904,6 +2933,8 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
                         }
                         
                         else{
+                            double n_new = pdms.Lookup(photon->GetWavelength());
+                            LSC->SetRefractiveIndex(n_new);
                             inout->NewCurvedIn(photon, world, *LSC, debug); //Else, entrance reflect/refract event.
                             if(matlabprint && LSC->ReturnPhotonInside()) photonpath.push_back(photon->GetPosition());
                         }
@@ -2924,19 +2955,28 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
                         else{ //If boundary is next event.
                             
                             int nextinterface = LSC->NextIntersection(*photon,fulldebug);
-                            
                             if((nextinterface!=0 && nextinterface!=1)){
-                                photon->PhotonKill(); //If sheet is not inside or outside. Kill photon + add counters.
-                                hits++;
-                                thishits++;
-                                if(debug){
-                                    cout<<"Hit on sheet "<<nextinterface<<" at interface point: ";
-                                    print->PrintPoint(photon->GetPosition()+photon->GetMomentum()*LSC->NextDistance(*photon,fulldebug));
-                                    cout<<endl;
+                                if(inout->NewCurvedOut(photon, *LSC, world, debug, reflections)){
+                                    double n_new = pdms.Lookup(photon->GetWavelength());
+                                    LSC->SetRefractiveIndex(n_new);
+                                    
+                                    photon->UnsetExit();
+                                    photon->PhotonKill(); //If sheet is not top or bottom. Kill photon + add counters.
+                                    hits++;
+                                    thishits++;
+                                    if(debug){
+                                        cout<<"Hit on sheet "<<nextinterface<<" at interface point: ";
+                                        print->PrintPoint(photon->GetPosition()+photon->GetMomentum()*LSC->NextDistance(*photon,fulldebug));
+                                        cout<<endl;
+                                    }
                                 }
                             }
                             else{
+                                double n_new = pdms.Lookup(photon->GetWavelength());
+                                LSC->SetRefractiveIndex(n_new);
+                                
                                 inout->NewCurvedOut(photon, *LSC, world, debug, reflections); //Otherwise exit reflect/refract event.
+                                if(matlabprint && world->PointinBox(photon)) photonpath.push_back(photon->GetPosition());
                             }
                         }
                     }
@@ -2944,7 +2984,16 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
                 
                 //Counters
                 
-                if(photon->GetAbsorptions()!=0) absorbed++;
+                if(photon->GetAbsorptions()!=0){
+                    thisabsorbed++;
+                    absorbed++;
+                    if(photon->GetQYLoss() && photon->GetAbsorptions()>1){
+                        reabsorbed++;
+                    }
+                    if(photon->GetQYLoss() && photon->GetAbsorptions()==1){
+                        firstabsorbed++;
+                    }
+                }
                 
                 //Deletes photon.
                 
@@ -2958,9 +3007,9 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
             
             //Calculates total efficiency and prints as 'result'
             
-            double result = 100 * hits/photons;
-            double internal_eff = 100 * hits/absorbed;
-            double absorption = 100 * absorbed / photons;
+            double result = 100 * thishits/thisphotons;
+            double internal_eff = 100 * thishits/thisabsorbed;
+            double absorption = 100 * thisabsorbed / thisphotons;
             
             
             externalsweep_conc.push_back(result);
@@ -3000,60 +3049,25 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
     
 }
 
-void normalgenerator(){
-    default_random_engine generator;
-    normal_distribution<double> distribution(0.5,1.0);
-    int i = 0;
-    while(i<10){
-        double number = distribution(generator);
-        if((number>=-1)&&(number<1)){
-            i++;
-            cout<<"Normal number ="<<number<<endl;
-            double radius = number;
-            double angle = drand48()*M_PI*2;
-            double x = cos(angle)*radius*1.3;
-            double y = sin(angle)*radius*1.3;
-
-            cout<<"x = "<<x<<" and y = "<<y<<endl;
-        }
-    }
-    
-    
-}
-
 int main(int argc, const char * argv[]){
-    
-    //CLOCK! For timing how long the process took.
     chrono::time_point<chrono::system_clock> start, end;
     start = chrono::system_clock::now();
     
     //double runs, int start, int end, bool matlabprint, bool debug, bool fulldebug, bool wavelengthprint
-    
     //lsc18(20000,1,440,500,0,0,1); //Simulation #1: Flat LSC
-    
     //run_reflection(200000,1,440,510,0,0,1);
-    
     //flexirun(2000, 350, 520, 0, 0, 0, 1); //Simulation #2: Flexible (Old algorithm)
-    
     //flexirun_pof_new(300000, 450, 450, 0, 0,0, 1, 10); //POF Paper, new algorithm
     
-    flexirun_new(2000000, 440, 500, 0, 0, 0, 1, 105); //Flexible LSC simulation
+    //flexirun_new(2000000, 440, 500, 0, 0, 0, 1, 100); //Flexible LSC simulation
     
     //double runs, int lscs, int start, int end, bool debug, bool wavelengthprint, bool hot, double radius, double conc1, double thickness
     //hybrid(10000,1,300,2500,0,1,0,10,5e15,1); //Hybrid Model simulation.
-    
     //refractivetext();
-    
     //testsesh();
-    
     //flexirun_new(15000, 350, 520, 0, 0, 0, 1, 300);
-    
     //BENT parametersweep(500000, 350, 520, 0, 0, 0, 1, 100/M_PI);
-    //parametersweep(750000, 350, 520, 0, 0, 0, 1, 3000000);
-    
-    //normalgenerator();
-    
-    //CLOCK!
+    parametersweep(2000000, 440, 500, 0, 0, 0, 1, 100);
     
     end = chrono::system_clock::now();
     
@@ -3062,6 +3076,4 @@ int main(int argc, const char * argv[]){
     
     cout<< endl << "Finished computation at " << ctime(&end_time)
     << "Elapsed time: " << elapsed_seconds.count() << "s\n";
-    
-    //CLOCK!
 }
