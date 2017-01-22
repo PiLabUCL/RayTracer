@@ -2191,8 +2191,12 @@ void flexirun_new(double runs, int start, int end, bool matlabprint, bool debug,
         }
         
         
-        photon->SetPosition(initialpos);
-        photon->SetMomentum(initialmom);
+        photon->SetPosition(Point3D(source->Centre().x,sy,sz));
+        photon->SetMomentum(Vector3D(-1,0,0));
+
+        
+        //photon->SetPosition(initialpos);
+        //photon->SetMomentum(initialmom);
         photon->SetWavelength(wavelength);
         photon->SetRandomPolarisation();
         
@@ -2759,8 +2763,8 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
     for(double thickness_run = thstart; thickness_run <= thend; thickness_run = thickness_run + stepsize){
         
         double r = rads; //radius of curvature
-        double l = 10; //length of lsc
-        double height = 10; //height of lsc
+        double l = 100; //length of lsc
+        double height = 100; //height of lsc
         double width = pow(10,thickness_run); //width of lsc/thickness
         
         Point3D centrepoint(-(r),0,0);
@@ -2796,19 +2800,19 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
         matrixread pdms;
         pdms.Data("pdms.txt");
         spectra am;
-        am.Setup(start, end, "beam.txt");
+        am.Setup(start, end, "spectrum.txt");
         
         
-        double squareradius = 50;
+        //double squareradius = 50;
         double ROUNDRAD = 1.3;
         
         //Generate Gaussian Shape for source beam
         
         double sourcedistance = 25 + (50/11);
         
-        Point3D SourceA (sourcedistance,0-squareradius,5-squareradius);
-        Point3D SourceB (sourcedistance,0+squareradius,5-squareradius);
-        Point3D SourceC (sourcedistance,0-squareradius,5+squareradius);
+        Point3D SourceA (sourcedistance,0-2*rads*sin(l/(2*r)),0);
+        Point3D SourceB (sourcedistance,0+2*rads*sin(l/(2*r)),0);
+        Point3D SourceC (sourcedistance,0-2*rads*sin(l/(2*r)),height);
         
         Sheet* source = new Sheet;
         source->Set(SourceA,SourceB,SourceC);
@@ -2841,7 +2845,6 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
             double hits = 0;
             double absorbed = 0;
             double photons = 0;
-            
             
             
             double conc = pow(10,conc_run);
@@ -2901,9 +2904,11 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
                     }
                 }
                 
-                
-                photon->SetPosition(initialpos);
-                photon->SetMomentum(initialmom);
+                photon->SetPosition(Point3D(source->Centre().x,sy,sz));
+                photon->SetMomentum(Vector3D(-1,0,0));
+
+                //photon->SetPosition(initialpos);
+                //photon->SetMomentum(initialmom);
                 photon->SetWavelength(wavelength);
                 photon->SetRandomPolarisation();
                 
@@ -3067,7 +3072,9 @@ int main(int argc, const char * argv[]){
     //testsesh();
     //flexirun_new(15000, 350, 520, 0, 0, 0, 1, 300);
     //BENT parametersweep(500000, 350, 520, 0, 0, 0, 1, 100/M_PI);
-    parametersweep(2000000, 440, 500, 0, 0, 0, 1, 100);
+    //parametersweep(2000000, 280, 4000, 0, 0, 0, 1, 1000); //STRAIGHT
+    parametersweep(2000000, 280, 4000, 0, 0, 0, 1, 100/M_PI);
+
     
     end = chrono::system_clock::now();
     
