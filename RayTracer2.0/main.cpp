@@ -2755,9 +2755,9 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
     vector<vector<double>> concentrationsweep;
     
     
-    double thstart = log10(0.4);
-    double thend = log10(0.8);
-    double thsteps = 1;
+    double thstart = -3;
+    double thend = -1;
+    double thsteps = 20;
     double stepsize = (thend-thstart)/thsteps;
     
     for(double thickness_run = thstart; thickness_run <= thend; thickness_run = thickness_run + stepsize){
@@ -2827,12 +2827,12 @@ void parametersweep(double runs, int start, int end, bool matlabprint, bool debu
         vector<double> thickness_conc;
         
         double concstart = -6;
-        double concend = -4;
-        double concsteps = 2;
+        double concend = -3;
+        double concsteps = 20;
         double concstepsize = (concend-concstart)/concsteps;
         
         
-        for(double conc_run=concstart; conc_run<concend; conc_run = conc_run + concstepsize){
+        for(double conc_run=concstart; conc_run<=concend; conc_run = conc_run + concstepsize){
             
             
             vector<double> output;
@@ -3072,8 +3072,8 @@ int main(int argc, const char * argv[]){
     //testsesh();
     //flexirun_new(15000, 350, 520, 0, 0, 0, 1, 300);
     //BENT parametersweep(500000, 350, 520, 0, 0, 0, 1, 100/M_PI);
-    //parametersweep(2000000, 280, 4000, 0, 0, 0, 1, 1000); //STRAIGHT
-    parametersweep(2000000, 280, 4000, 0, 0, 0, 1, 100/M_PI);
+    parametersweep(900000, 280, 4000, 0, 0, 0, 1, 1000); //STRAIGHT
+    //parametersweep(1000000, 280, 4000, 0, 0, 0, 1, 100/M_PI);
 
     
     end = chrono::system_clock::now();
